@@ -1,0 +1,62 @@
+<script>
+  function getUMACTracking() {
+    const boxNumber = document.getElementById("umacBoxNumber").value;
+    const lastName = document.getElementById("umacLastName").value;
+
+    if ((boxNumber.length < 1) || (lastName.length) < 1) {
+      document.getElementById("userMessageDiv").innerHTML = "Box num or last name can't be empty";
+      return;
+    }
+    const trackingData = {
+      'boxNumber': boxNumber,
+      'lastName': lastName
+    };
+    document.getElementById("trackingInfo").innerHTML = "";
+    document.getElementById("userMessageDiv").innerHTML = "Fetching tracking info...";
+
+    fetch(
+      window.location.origin + "/wp-json/UMACTracking/" + btoa(JSON.stringify(trackingData)).replace('=', '').replace('=', ''),
+      {
+        method: "GET",
+        redirect: "follow",
+      }
+    ).then((response) => response.json())
+      .then((result) => {
+        try {
+          result = result.replace(/(^"|"$)/g, "");
+          document.getElementById("userMessageDiv").innerHTML = "";
+          const backendRes = decodeURIComponent(escape(window.atob(result)));
+
+          document.getElementById("trackingInfo").innerHTML = backendRes;
+        } catch (error) {
+          document.getElementById("userMessageDiv").innerHTML = "Error processing data.";
+          document.getElementById("trackingInfo").innerHTML = "";
+        }
+      })
+      .catch((error) => {
+        document.getElementById("userMessageDiv").innerHTML = "Error fetching data.";
+      });
+  }
+
+</script>
+
+<div>
+  <link rel="stylesheet" href="https://umactracking.com/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://umactracking.com/css/animate.css">
+  <link rel="stylesheet" href="https://umactracking.com/css/slick.css">
+  <link rel="stylesheet" href="https://umactracking.com/css/slicknav.css">
+  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css">
+
+  <link rel="stylesheet" href="https://umactracking.com/css/style.css">
+  <div>
+    <input type="text" id="umacBoxNumber" placeholder="BOX Number" required />
+    </br></br>
+    <input type="text" id="umacLastName" placeholder="LAST NAME" required />
+    </br></br>
+    <button onclick="getUMACTracking();">Track</button>
+    </br></br>
+    <div id="userMessageDiv"></div>
+    </br>
+    <div id="trackingInfo"></div>
+  </div>
+</div>
